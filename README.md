@@ -3,6 +3,11 @@
 Tree-sitter grammar for [skhd.zig](https://github.com/jackielii/skhd.zig)
 configuration files (`skhdrc`).
 
+The grammar implements the language defined in
+[skhd.zig SYNTAX.md](https://github.com/jackielii/skhd.zig/blob/main/SYNTAX.md).
+For the parser rules themselves, see [`grammar.js`](./grammar.js); highlight
+captures live in [`queries/skhdrc/highlights.scm`](./queries/skhdrc/highlights.scm).
+
 Forked from [reo101/tree-sitter-skhdrc](https://github.com/reo101/tree-sitter-skhdrc)
 (which targets the original [koekeishiya/skhd](https://github.com/koekeishiya/skhd))
 and extended to cover skhd.zig-specific syntax.
