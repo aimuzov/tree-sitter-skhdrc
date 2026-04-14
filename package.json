@@ -1,44 +1,17 @@
 {
-  "name": "tree-sitter-skhd",
+  "name": "tree-sitter-skhdrc",
   "version": "1.0.0",
-  "main": "bindings/node",
-  "types": "bindings/node",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "install": "node-gyp-build",
-    "prebuildify": "prebuildify --napi --strip"
-  },
-  "author": "reo101 <pavel.atanasov2001@gmail.com>",
   "license": "MIT",
-  "description": "A tree-sitter grammar for skhdrc",
-  "dependencies": {
-    "node-addon-api": "^7.1.0",
-    "node-gyp-build": "^4.8.0"
-  },
-  "peerDependencies": {
-    "tree-sitter": "^0.21.0"
-  },
-  "peerDependenciesMeta": {
-    "tree_sitter": {
-      "optional": true
-    }
-  },
+  "description": "A tree-sitter grammar for skhd.zig configuration files",
+  "private": true,
   "devDependencies": {
-    "tree-sitter-cli": "^0.22.6",
-    "prebuildify": "^6.0.0"
+    "tree-sitter-cli": "0.22.6"
   },
-  "files": [
-    "grammar.js",
-    "binding.gyp",
-    "prebuilds/**",
-    "bindings/node/*",
-    "queries/*",
-    "src/**"
-  ],
   "tree-sitter": [
     {
-      "scope": "source.hotkey",
-      "injection-regex": "^hotkey$"
+      "scope": "source.skhdrc",
+      "file-types": ["skhdrc"],
+      "highlights": "queries/skhdrc/highlights.scm"
     }
   ]
 }
