@@ -48,10 +48,10 @@ and extended to cover skhd.zig-specific syntax.
 
 ### Neovim (lazy.nvim)
 
-Add the repo as a plugin and tell `nvim-treesitter` to install the parser.
-Parser registration, filetype detection, and `commentstring` are handled by
-the bundled `plugin/` and `ftdetect/` files — works with both v1 (master)
-and v2 (main) of `nvim-treesitter`.
+Targets `nvim-treesitter` **v2** (the `main` branch). Add the repo as a
+plugin and tell `nvim-treesitter` to install the parser. Parser
+registration, filetype detection, and `commentstring` are handled by the
+bundled `plugin/` and `ftdetect/` files.
 
 ```lua
 return {
@@ -80,22 +80,11 @@ If you don't want to add this repo as a plugin, register the parser yourself
 and copy `queries/skhdrc/highlights.scm` into your config's runtime path.
 
 ```lua
--- nvim-treesitter v2 (main)
 require("nvim-treesitter.parsers").skhdrc = {
   install_info = {
     url = "https://github.com/aimuzov/tree-sitter-skhdrc",
     revision = "main",
   },
-}
-
--- nvim-treesitter v1 (master)
-require("nvim-treesitter.parsers").get_parser_configs().skhdrc = {
-  install_info = {
-    url = "https://github.com/aimuzov/tree-sitter-skhdrc",
-    files = { "src/parser.c" },
-    branch = "main",
-  },
-  filetype = "skhdrc",
 }
 ```
 

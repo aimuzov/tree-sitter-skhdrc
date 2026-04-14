@@ -11,23 +11,11 @@ if not ok then
 	return
 end
 
-local config = {
-	install_info = {
-		url = "https://github.com/aimuzov/tree-sitter-skhdrc",
-		revision = "main", -- nvim-treesitter v2 (main branch)
-		branch = "main", -- nvim-treesitter v1 (master branch)
-		files = { "src/parser.c" }, -- nvim-treesitter v1
-	},
-	filetype = "skhdrc", -- nvim-treesitter v1
-}
-
-if type(parsers.get_parser_configs) == "function" then
-	-- nvim-treesitter v1 (master branch)
-	local parser_configs = parsers.get_parser_configs()
-	if not parser_configs.skhdrc then
-		parser_configs.skhdrc = config
-	end
-elseif parsers.skhdrc == nil then
-	-- nvim-treesitter v2 (main branch)
-	parsers.skhdrc = config
+if parsers.skhdrc == nil then
+	parsers.skhdrc = {
+		install_info = {
+			url = "https://github.com/aimuzov/tree-sitter-skhdrc",
+			revision = "main",
+		},
+	}
 end
