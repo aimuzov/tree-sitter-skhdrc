@@ -46,41 +46,49 @@ and extended to cover skhd.zig-specific syntax.
 
 ## Installation
 
-### Neovim (LazyVim / lazy.nvim, nvim-treesitter v2 `main` branch)
+### Neovim (lazy.nvim)
 
-Register the parser and install it via `:TSInstall skhdrc`:
+Add the repo as a plugin and tell `nvim-treesitter` to install the parser.
+Parser registration, filetype detection, and `commentstring` are handled by
+the bundled `plugin/` and `ftdetect/` files — works with both v1 (master)
+and v2 (main) of `nvim-treesitter`.
 
 ```lua
 return {
-  "nvim-treesitter/nvim-treesitter",
-  opts = function(_, opts)
-    require("nvim-treesitter.parsers").skhdrc = {
-      install_info = {
-        url = "https://github.com/aimuzov/tree-sitter-skhdrc",
-        revision = "main",
-      },
-    }
-
-    opts.ensure_installed = opts.ensure_installed or {}
-    vim.list_extend(opts.ensure_installed, { "skhdrc" })
-
-    vim.filetype.add({
-      filename = { skhdrc = "skhdrc", [".skhdrc"] = "skhdrc" },
-      pattern  = {
-        [".*/skhd/skhdrc"]       = "skhdrc",
-        [".*/%.config/skhd/.*"]  = "skhdrc",
-      },
-    })
-  end,
+  {
+    "aimuzov/tree-sitter-skhdrc",
+    lazy = false,
+  },
+  {
+    "nvim-treesitter/nvim-treesitter",
+    dependencies = { "aimuzov/tree-sitter-skhdrc" },
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "skhdrc" })
+    end,
+  },
 }
 ```
 
-The `highlights.scm` query bundled with this repo is picked up automatically
-through Neovim's runtime path.
+Then run `:TSInstall skhdrc` once (or restart — LazyVim installs missing
+parsers from `ensure_installed` automatically). Highlights and queries are
+loaded from `queries/skhdrc/` via Neovim's runtime path.
 
-### nvim-treesitter v1 (`master` branch, legacy API)
+### Manual registration
+
+If you don't want to add this repo as a plugin, register the parser yourself
+and copy `queries/skhdrc/highlights.scm` into your config's runtime path.
 
 ```lua
+-- nvim-treesitter v2 (main)
+require("nvim-treesitter.parsers").skhdrc = {
+  install_info = {
+    url = "https://github.com/aimuzov/tree-sitter-skhdrc",
+    revision = "main",
+  },
+}
+
+-- nvim-treesitter v1 (master)
 require("nvim-treesitter.parsers").get_parser_configs().skhdrc = {
   install_info = {
     url = "https://github.com/aimuzov/tree-sitter-skhdrc",
