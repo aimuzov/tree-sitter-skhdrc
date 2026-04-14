@@ -12,6 +12,10 @@
           "named": true
         },
         {
+          "type": "command_ref",
+          "named": true
+        },
+        {
           "type": "keysym",
           "named": true
         },
@@ -48,6 +52,87 @@
     "fields": {}
   },
   {
+    "type": "command_ref",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "at_ident",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "string",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "define",
+    "named": true,
+    "fields": {
+      "item": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "string",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "template": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "command",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "group_ref",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "at_ident",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "hotkey",
     "named": true,
     "fields": {},
@@ -65,6 +150,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "identifier",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "key",
@@ -145,6 +235,11 @@
     }
   },
   {
+    "type": "mode",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "mode_decl",
     "named": true,
     "fields": {},
@@ -154,6 +249,10 @@
       "types": [
         {
           "type": "command",
+          "named": true
+        },
+        {
+          "type": "command_ref",
           "named": true
         },
         {
@@ -189,14 +288,26 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "command",
           "named": true
         },
         {
+          "type": "command_ref",
+          "named": true
+        },
+        {
+          "type": "group_ref",
+          "named": true
+        },
+        {
           "type": "string",
+          "named": true
+        },
+        {
+          "type": "wildcard",
           "named": true
         }
       ]
@@ -218,6 +329,22 @@
     }
   },
   {
+    "type": "shell",
+    "named": true,
+    "fields": {
+      "path": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "string",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "source_file",
     "named": true,
     "fields": {},
@@ -230,7 +357,7 @@
           "named": true
         },
         {
-          "type": "comment",
+          "type": "define",
           "named": true
         },
         {
@@ -244,16 +371,20 @@
         {
           "type": "mode_decl",
           "named": true
+        },
+        {
+          "type": "shell",
+          "named": true
         }
       ]
     }
   },
   {
-    "type": "\n",
+    "type": "(",
     "named": false
   },
   {
-    "type": "*",
+    "type": ")",
     "named": false
   },
   {
@@ -277,7 +408,15 @@
     "named": false
   },
   {
+    "type": ".define",
+    "named": false
+  },
+  {
     "type": ".load",
+    "named": false
+  },
+  {
+    "type": ".shell",
     "named": false
   },
   {
@@ -313,7 +452,15 @@
     "named": false
   },
   {
+    "type": "at_ident",
+    "named": true
+  },
+  {
     "type": "backspace",
+    "named": false
+  },
+  {
+    "type": "backtick",
     "named": false
   },
   {
@@ -489,10 +636,6 @@
     "named": false
   },
   {
-    "type": "mode",
-    "named": true
-  },
-  {
     "type": "mute",
     "named": false
   },
@@ -570,6 +713,14 @@
   },
   {
     "type": "up",
+    "named": false
+  },
+  {
+    "type": "wildcard",
+    "named": true
+  },
+  {
+    "type": "|",
     "named": false
   },
   {

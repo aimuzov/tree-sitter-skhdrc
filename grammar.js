@@ -28,6 +28,7 @@ const KEYCODES = [
   "space",     // kVK_Space
   "backspace", // kVK_Delete
   "escape",    // kVK_Escape
+  "backtick",  // skhd.zig
 
   // The following keys can not be used with the fn-modifier:
 
@@ -41,26 +42,10 @@ const KEYCODES = [
   "right",    // kVK_RightArrow
   "up",       // kVK_UpArrow
   "down",     // kVK_DownArrow
-  "f1",       // kVK_F1
-  "f2",       // kVK_F2
-  "f3",       // kVK_F3
-  "f4",       // kVK_F4
-  "f5",       // kVK_F5
-  "f6",       // kVK_F6
-  "f7",       // kVK_F7
-  "f8",       // kVK_F8
-  "f9",       // kVK_F9
-  "f10",      // kVK_F10
-  "f11",      // kVK_F11
-  "f12",      // kVK_F12
-  "f13",      // kVK_F13
-  "f14",      // kVK_F14
-  "f15",      // kVK_F15
-  "f16",      // kVK_F16
-  "f17",      // kVK_F17
-  "f18",      // kVK_F18
-  "f19",      // kVK_F19
-  "f20",      // kVK_F20
+  "f1",  "f2",  "f3",  "f4",  "f5",
+  "f6",  "f7",  "f8",  "f9",  "f10",
+  "f11", "f12", "f13", "f14", "f15",
+  "f16", "f17", "f18", "f19", "f20",
 
   "sound_up",          // NX_KEYTYPE_SOUND_UP
   "sound_down",        // NX_KEYTYPE_SOUND_DOWN
@@ -73,37 +58,56 @@ const KEYCODES = [
   "brightness_up",     // NX_KEYTYPE_BRIGHTNESS_UP
   "brightness_down",   // NX_KEYTYPE_BRIGHTNESS_DOWN
   "illumination_up",   // NX_KEYTYPE_ILLUMINATION_UP
-  "illumination_down", // NX_KEYTYPE_ILLUMINATION_DOWN)
+  "illumination_down", // NX_KEYTYPE_ILLUMINATION_DOWN
 ];
 
 module.exports = grammar({
   name: "skhdrc",
 
+  extras: $ => [
+    /\s/,
+    $.comment,
+  ],
+
   rules: {
     source_file: $ => repeat($._statement),
 
     _statement: $ => choice(
-      $.comment,
       $._macro,
       $.hotkey,
       $.mode_decl,
     ),
 
-    comment: $ => /\#[^\n]*/,
+    comment: $ => /#[^\n]*/,
 
     _macro: $ => choice(
       $.load,
+      $.shell,
       $.blacklist,
+      $.define,
     ),
 
-    load: $ => seq(
-      ".load",
-      field("path", $.string),
-    ),
+    load: $ => seq(".load", field("path", $.string)),
+
+    shell: $ => seq(".shell", field("path", $.string)),
 
     blacklist: $ => seq(
       ".blacklist",
+      "[",
+      repeat(field("item", $.string)),
+      "]",
+    ),
+
+    define: $ => choice(
       seq(
+        ".define",
+        field("name", $.identifier),
+        ":",
+        field("template", $.command),
+      ),
+      seq(
+        ".define",
+        field("name", $.identifier),
         "[",
         repeat(field("item", $.string)),
         "]",
@@ -112,7 +116,7 @@ module.exports = grammar({
 
     hotkey: $ => choice(
       seq($.modes, "<", $.action),
-      $.action
+      $.action,
     ),
 
     modes: $ => seq(
@@ -120,61 +124,98 @@ module.exports = grammar({
       repeat(seq(",", $.mode)),
     ),
 
-    mode: $ => /\w+/,
+    mode: $ => /[A-Za-z_][A-Za-z0-9_]*/,
 
     action: $ => choice(
       seq($.keysym, "[", $.proc_map_lst, "]"),
       seq($.keysym, "->", "[", $.proc_map_lst, "]"),
-      seq($.keysym, ":", $.command),
-      seq($.keysym, "->", ":", $.command),
-      seq($.keysym, ";", $.mode),
-      seq($.keysym, "->", ";", $.mode)
+      seq($.keysym, ":", $._command_or_ref),
+      seq($.keysym, "->", ":", $._command_or_ref),
+      seq($.keysym, ";", $.mode, optional(seq(":", $._command_or_ref))),
+      seq($.keysym, "->", ";", $.mode, optional(seq(":", $._command_or_ref))),
+      seq($.keysym, "|", $.keysym),
+      seq($.keysym, "->", "|", $.keysym),
+      seq($.keysym, "~"),
+      seq($.keysym, "->", "~"),
+    ),
+
+    _command_or_ref: $ => choice(
+      $.command_ref,
+      $.command,
     ),
 
     keysym: $ => choice(
       seq($.mod, "-", $.key),
-      $.key
+      $.key,
     ),
 
     mod: $ => prec.right(choice(
       $.modifier_keyword,
-      seq($.mod, "+", $.mod)
+      seq($.mod, "+", $.mod),
     )),
 
     key: $ => choice(
       $.literal,
-      $.keycode
+      $.keycode,
     ),
 
-    literal: $ => /[A-Z0-9]/i,
+    literal: $ => /[A-Za-z0-9]/,
 
-    keycode: $ => choice(/0x[0-9A-F]{2}/i, ...KEYCODES),
+    keycode: $ => choice(
+      /0x[0-9A-Fa-f]{1,3}/,
+      ...KEYCODES,
+    ),
 
-    proc_map_lst: $ => seq($.proc_map, repeat($.proc_map)),
+    proc_map_lst: $ => repeat1($.proc_map),
 
     proc_map: $ => choice(
-      seq($.string, ":", $.command),
-      seq($.string, "~"),
-      seq("*", ":", $.command),
-      seq("*", "~")
+      seq($._proc_target, ":", $._command_or_ref),
+      seq($._proc_target, "~"),
     ),
+
+    _proc_target: $ => choice(
+      $.string,
+      $.group_ref,
+      $.wildcard,
+    ),
+
+    wildcard: $ => "*",
+
+    at_ident: $ => token(prec(2, /@[A-Za-z_][A-Za-z0-9_]*/)),
+
+    group_ref: $ => $.at_ident,
+
+    command_ref: $ => seq(
+      field("name", $.at_ident),
+      optional(seq(
+        "(",
+        optional(seq(
+          $._ref_arg,
+          repeat(seq(",", $._ref_arg)),
+        )),
+        ")",
+      )),
+    ),
+
+    _ref_arg: $ => choice($.string, $.identifier, /[0-9]+/),
 
     string: $ => token(seq("\"", /[^"]*/, "\"")),
 
-    command: $ => seq(
-      // Match lines that are continued with "\"
-      repeat(seq(/[^\n]*\\/, "\n")),
-      // Match a line that ends without continuation
-      /[^\n]+/
-    ),
+    command: $ => prec(1, seq(
+      repeat(seq(/[^\n]*\\/, /\r?\n/)),
+      /[^\n@][^\n]*/,
+    )),
 
     mode_decl: $ => choice(
-      seq("::", $.mode, "@", ":", $.command),
-      seq("::", $.mode, ":", $.command),
+      seq("::", $.mode, "@", ":", $._command_or_ref),
+      seq("::", $.mode, ":", $._command_or_ref),
       seq("::", $.mode, "@"),
-      seq("::", $.mode)
+      seq("::", $.mode),
     ),
 
+    identifier: $ => /[A-Za-z_][A-Za-z0-9_]*/,
+
     modifier_keyword: $ => choice(...MODIFIERS),
-  }
+  },
+
 });
